@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 from random import randint
 
@@ -11,43 +12,49 @@ def csvrnd(round = 0):
         worker.writerow([str(trio)] + [' '])
         if round < 300:
             return csvrnd(round + 1)
+        
+def jsondata(keybox):
+    def jsonwrite(key, value):
+        with open ('datarecord.json', 'a+', encoding= 'utf-8') as json_rec:
+            json.dump([{key: value}], json_rec, indent= 2)
+        json_rec.close()
+    return jsonwrite
 
-def mathdata():
-    with open('datarec.csv', 'r') as csv_eye:
-        abc = list()
-        worker = csv.reader(csv_eye, lineterminator= '')
-        for i in worker:
-            print(i)
-            if str(i).isdigit():
-                numbr = int(i)
-                if numbr % 3 != 0:
-                    abc.append(i)
-                else:
-                    print(abc)
-                    abc = list()
+def mathdata(numbers, page = 0):
+    print(numbers)
+    def mathread(*args):
+        with open('datarec.csv', 'r') as csv_rec:
+            watcher = csv.reader(csv_rec, lineterminator= '')
+            for eye in watcher:
+                if len(eye) > 1:
+                    eye.pop()
+                    eye = list(map(int, eye))
+                    print(eye)
+                    if page % 3 == 0:
+                        return numbers(eye)
+    return mathread(page + 1)
+
+@jsondata
 @mathdata            
-def mathline(*args):
+def mathline(*argument, line = 0):
+    print(f"1. Квадратное уравнение\n: {argument[line][0]}x + {argument[line][1]}x + {argument[line][-1]} = {0}")
     x2 = ''
-    disc = args[1] ** 2 - 4 * args[0] * args[2]
-    print("Дискриминант\n:", "D =", args[1] ** 2, "-", 4, "*", args[0], "*", args[2], "\n=", disc)
+    disc = argument[line][1] ** 2 - 4 * argument[line][0] * argument[line][-1]
+    print("Дискриминант\n:", "D =", argument[line][1] ** 2, "-", 4, "*", argument[line][0], "*", argument[line][2], "\n=", disc)
     if disc > 0:
-        x1 = round((-args[1] + disc ** 0.5) / 2 * args[0], 2)
-        x2 = round((-args[1] - disc ** 0.5) / 2 * args[0], 2)
+        x1 = round((-argument[line][1] + disc ** 0.5) / 2 * argument[line][0], 2)
+        x2 = round((-argument[line][1] - disc ** 0.5) / 2 * argument[line][0], 2)
     elif disc == 0:
-        x1 = round(-args[1] / 2 * args[0], 2)
+        x1 = round(-argument[line][1] / 2 * argument[line][0], 2)
     else:
         x1 = 'Корней нет'
     print(f"Корни\n: {x1}; {x2}")
+    # return mathline(line + 1)
+
 
 for fi in os.listdir(os.getcwd()):
     if 'datarec' in fi:
         os.remove(fi)
-# a = randint(-10, 11)
-# b = randint(-20, 21)
-# c = randint(-20, 41)
-# print(f"1. Квадратное уравнение\n: {a}x + {b}x + {c} = {0}")
-# mathline(a, b, c)
 
 csvrnd()
 print("\n2. Файл csv успешно сгенерирован.")
-mathdata()
