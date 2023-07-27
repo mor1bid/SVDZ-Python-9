@@ -25,16 +25,9 @@ def csvrnd(round = 0):
         worker.writerow([str(trio)] + [' '])
         if round < 300:
             return csvrnd(round + 1)
+    csv_rec.close()
 
 csvrnd()
-print("\n2. Файл csv успешно сгенерирован.")
-
-def jsondata(keybox):
-    def jsonwrite(key):
-        with open ('datarec.json', 'a') as json_rec:
-            json.dump([{key: ' '}], json_rec, indent= 2)
-        json_rec.close()
-    return jsonwrite
 
 def mathdata(numbers, page = 0):
     def mathread(*args, numberbox = list()):
@@ -49,19 +42,34 @@ def mathdata(numbers, page = 0):
             return numbers(numberbox)
     return mathread(page + 1)
 
+def jsondata(keyset):
+    @mathdata        
+    def mathline(argument):
+        keybox = list()
+        for line in range(len(argument)-1):
+            print(f"1.{line + 1} Квадратное уравнение\n: {argument[line][0]}x + {argument[line][1]}x + {argument[line][-1]} = {0}")
+            x2 = ''
+            disc = argument[line][1] ** 2 - 4 * argument[line][0] * argument[line][-1]
+            print("Дискриминант\n: D =", argument[line][1] ** 2, "-", 4, "*", argument[line][0], "*", argument[line][2], "\n=", disc)
+            if disc > 0:
+                x1 = round((-argument[line][1] + disc ** 0.5) / 2 * argument[line][0], 2)
+                x2 = round((-argument[line][1] - disc ** 0.5) / 2 * argument[line][0], 2)
+            elif disc == 0:
+                x1 = round(-argument[line][1] / 2 * argument[line][0], 2)
+            else:
+                x1 = 'Корней нет'
+            keybox.append([str(line + 1) + ". D = " + str(argument[line][1] ** 2) + " - " + '4' + " * " + str(argument[line][0]) + " * " + str(argument[line][2]) + " = " + str(disc)])
+            keybox.append(['x1: ', x1])
+            keybox.append(['x2: ', x2])
+            print(f"Корни\n: {x1}; {x2}\n")
+        return keyset(keybox)
+    return mathline
+
 @jsondata
-@mathdata            
-def mathline(argument):
-    for line in range(len(argument)-1):
-        print(f"1.{line + 1} Квадратное уравнение\n: {argument[line][0]}x + {argument[line][1]}x + {argument[line][-1]} = {0}")
-        x2 = ''
-        disc = argument[line][1] ** 2 - 4 * argument[line][0] * argument[line][-1]
-        print("Дискриминант\n:", "D =", argument[line][1] ** 2, "-", 4, "*", argument[line][0], "*", argument[line][2], "\n=", disc)
-        if disc > 0:
-            x1 = round((-argument[line][1] + disc ** 0.5) / 2 * argument[line][0], 2)
-            x2 = round((-argument[line][1] - disc ** 0.5) / 2 * argument[line][0], 2)
-        elif disc == 0:
-            x1 = round(-argument[line][1] / 2 * argument[line][0], 2)
-        else:
-            x1 = 'Корней нет'
-        print(f"Корни\n: {x1}; {x2}\n")
+def jsonwrite(keybox):
+    with open ('datarec.json', 'a', encoding='utf-16') as json_rec:
+        for key in keybox:
+            json.dump([{'': key}], json_rec, indent= 2)
+    json_rec.close()
+
+print("\n2. Файл csv успешно сгенерирован.")
